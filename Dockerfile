@@ -34,36 +34,4 @@ RUN dpkg --add-architecture i386 \
   && rm -rf /tmp/* \
   && rm -rf /var/tmp/*
 
-COPY entrypoint.sh \
-     update_mods.sh \
-     container_init.sh \
-     container_warmup.sh \
-     /
-RUN chmod +x /entrypoint.sh /update_mods.sh /container_*.sh
 
-# setup lgsm user
-# keep compatibility with https://github.com/GameServerManagers/LinuxGSM-Docker
-RUN groupadd -g 100 lgsm \
-  && useradd -g 100 -u 99 -m -s /bin/bash -G tty lgsm \
-  && wget https://linuxgsm.com/dl/linuxgsm.sh \
-  && chmod +x /linuxgsm.sh \
-  && cp /linuxgsm.sh /update_mods.sh /home/lgsm/ \
-  && chown lgsm:lgsm /home/lgsm/*.sh
-
-USER lgsm
-WORKDIR /home/lgsm
-ENV PATH=$PATH:/home/lgsm
-
-# make sure lgsm is part of the image
-RUN linuxgsm.sh arkserver \
-  && arkserver update-lgsm \
-  && rm -rf arkserver lgsm/config-* \
-  && mkdir -p serverfiles
-
-VOLUME ["/home/lgsm/serverfiles"]
-
-ENV SERVERNAME=""
-ENV UPDATE_LGSM="" UPDATE_SERVER="" FORCE_VALIDATE="" UPDATE_MODS=""
-ENV CONTAINER_INIT="" CONTAINER_WARMUP=""
-ENTRYPOINT ["/entrypoint.sh"]
-CMD ["linuxgsm.sh"]
