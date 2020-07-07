@@ -1,5 +1,4 @@
-ARG UBUNTU_VERSION=latest
-FROM ubuntu:$UBUNTU_VERSION
+FROM ubuntu:18.04
 
 RUN dpkg --add-architecture i386 \
   && apt-get update \
@@ -28,6 +27,7 @@ RUN dpkg --add-architecture i386 \
     ethtool \
     netcat \
     steamcmd \
+    openssh-server \
   && apt-get autoremove -y \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/* \
@@ -43,8 +43,8 @@ RUN chmod +x /entrypoint.sh /update_mods.sh /container_*.sh
 
 # setup lgsm user
 # keep compatibility with https://github.com/GameServerManagers/LinuxGSM-Docker
-RUN groupadd -g 750 lgsm \
-  && useradd -g 750 -u 750 -m -s /bin/bash -G tty lgsm \
+RUN groupadd -g 100 lgsm \
+  && useradd -g 100 -u 99 -m -s /bin/bash -G tty lgsm \
   && wget https://linuxgsm.com/dl/linuxgsm.sh \
   && chmod +x /linuxgsm.sh \
   && cp /linuxgsm.sh /update_mods.sh /home/lgsm/ \
